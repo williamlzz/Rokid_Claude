@@ -108,14 +108,28 @@ connected and won't accept the association. Open Settings → Personal Hotspot a
 **stay on that screen** while the glasses connect. Android phone hotspots don't
 have this issue.
 
-In the app, if you're disconnected you can also **single-tap** to open the
-system Wi-Fi panel, or say **"网络" / "wifi"** any time to open it.
+### QR provisioning (no computer needed)
+
+The glasses can also join a network by scanning a standard Wi-Fi QR code
+(`WIFI:S:<ssid>;T:WPA;P:<password>;;`) with their camera — no USB, no typing.
+When **disconnected**, **single-tap** opens the scanner; point it at a Wi-Fi QR
+and confirm the system "save network?" dialog. The network is saved and
+auto-reconnects in range. (**Swipe** opens the system Wi-Fi panel instead, for
+already-saved or open networks; **double-tap** exits.)
+
+The relay serves a local generator at `/wifi-qr.html` — enter an SSID and
+password to render a Wi-Fi QR entirely in-page (the password never leaves the
+browser). Useful for iPhone Personal Hotspot, which has no built-in Wi-Fi QR.
+Android phone hotspots and many routers can show one natively.
+
+Say **"网络" / "wifi"** any time (when connected) to open the system Wi-Fi panel.
 
 ## Voice commands
 
 - **Tap** — start talking / stop recording / interrupt a running task.
 - **Double-tap** — blank the screen (the task keeps running); when **offline**,
-  double-tap exits the app and single-tap opens Wi-Fi settings.
+  double-tap exits the app, single-tap opens the Wi-Fi QR scanner, and swipe
+  opens the Wi-Fi panel.
 - Say **"新会话" / "new session"** to reset, **"退出" / "exit"** to close.
 - Say **"切换模型" / "switch model"** to open the model picker (opus / sonnet /
   fable), then swipe to choose and tap to confirm.

@@ -64,6 +64,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** 拉起扫码配网页(离线自救主入口)。 */
+    private fun openScanner() {
+        try { startActivity(Intent(this, ScannerActivity::class.java)) } catch (_: Exception) {}
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         audioGranted.value =
@@ -129,11 +134,14 @@ class MainActivity : ComponentActivity() {
             return true
         }
         if (SystemClock.uptimeMillis() - wokeAt < 700) return true   // 唤醒余波:吞掉同一手势的后续事件
-        // 离线(未连 relay):说话/转写无意义 → 手势改派自救。单击=开 WiFi 设置,双击=退出。
+        // 离线(未连 relay):语音无意义 → 手势改派自救。单击=扫码配网,滑动=开 WiFi 面板,双击=退出。
         if (!connected.value && hud.choice == null) {
             if (keyCode == android.view.KeyEvent.KEYCODE_BACK) { finish(); return true }
-            if (Gestures.map(keyCode, android.view.KeyEvent.ACTION_UP) == GestureAction.TAP) { openWifiSettings(); return true }
-            // 滑动等其它手势照常落到下方(翻页,无害)
+            when (Gestures.map(keyCode, android.view.KeyEvent.ACTION_UP)) {
+                GestureAction.TAP -> { openScanner(); return true }
+                GestureAction.SCROLL_UP, GestureAction.SCROLL_DOWN -> { openWifiSettings(); return true }
+                else -> {}
+            }
         }
         if (keyCode == android.view.KeyEvent.KEYCODE_BACK) { setBlanked(true); return true }  // 双击=主动灭屏
         // 选择模式优先截胡:前/后滑移动高亮,单击确认。

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WiFi 二维码 / WiFi QR</title>
+<style>
+  body { font-family: sans-serif; max-width: 420px; margin: 24px auto; padding: 0 16px; }
+  label { display: block; margin: 10px 0 2px; font-size: 14px; }
+  input, select, button { font-size: 16px; padding: 8px; width: 100%; box-sizing: border-box; }
+  button { margin-top: 14px; cursor: pointer; }
+  #out { margin-top: 18px; text-align: center; }
+  .hint { color: #666; font-size: 13px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<h2>WiFi 二维码 / WiFi QR</h2>
+<p class="hint">密码只在本页本地生成二维码,不发送到任何服务器。<br>
+Password is used only in this page to draw the QR — nothing is sent anywhere.</p>
+<label>网络名 SSID</label><input id="ssid" autocomplete="off">
+<label>密码 Password</label><input id="pass" autocomplete="off">
+<label>加密 Security</label>
+<select id="type">
+  <option value="WPA">WPA / WPA2 / WPA3</option>
+  <option value="nopass">无密码 Open</option>
+</select>
+<button id="gen">生成二维码 / Generate</button>
+<div id="out"></div>
+<script src="./vendor/qrcode-generator.js"></script>
+<script>
+  function esc(s) { return s.replace(/([\\;,:"])/g, '\\$1'); }
+  function wifiString(ssid, pass, type) {
+    if (type === 'nopass') return 'WIFI:S:' + esc(ssid) + ';T:nopass;;';
+    return 'WIFI:S:' + esc(ssid) + ';T:' + type + ';P:' + esc(pass) + ';;';
+  }
+  document.getElementById('gen').onclick = function () {
+    var ssid = document.getElementById('ssid').value;
+    var pass = document.getElementById('pass').value;
+    var type = document.getElementById('type').value;
+    var out = document.getElementById('out');
+    if (!ssid) { out.textContent = '请填写 SSID / enter SSID'; return; }
+    var qr = qrcode(0, 'M');
+    qr.addData(wifiString(ssid, pass, type));
+    qr.make();
+    out.innerHTML = qr.createImgTag(6, 8);
+  };
+</script>
+</body>
+</html>

@@ -51,4 +51,12 @@ class StringsTest {
         assertTrue(!matchesLangSwitch("switch the language of this file to rust"))
         assertTrue(!matchesLangSwitch("hello"))
     }
+    @Test fun scannerStrings() {
+        assertEquals("对准 WiFi 二维码", strings("zh").scanHint)
+        assertEquals("aim at the WiFi QR code", strings("en").scanHint)
+        assertEquals("不是 WiFi 二维码", strings("zh").notWifiQr)
+        assertEquals("✅ 已保存网络", strings("zh").wifiSaved)
+        assertEquals("⚠️ 未保存", strings("zh").wifiNotSaved)
+        assertEquals("Camera not authorized", strings("en").cameraDenied)
+    }
 }

@@ -31,6 +31,11 @@ data class Strings(
     val errorPrefix: String,
     val offlineHint: String,
     val langSwitched: String,
+    val scanHint: String,
+    val notWifiQr: String,
+    val wifiSaved: String,
+    val wifiNotSaved: String,
+    val cameraDenied: String,
 )
 
 private val ZH = Strings(
@@ -44,6 +49,8 @@ private val ZH = Strings(
     readyThinking = "🟢 已就绪 · 思考中…", thinking = "💭 思考中…", errorPrefix = "错误: ",
     offlineHint = "单击:打开WiFi · 双击:退出",
     langSwitched = "🌐 已切换为中文",
+    scanHint = "对准 WiFi 二维码", notWifiQr = "不是 WiFi 二维码",
+    wifiSaved = "✅ 已保存网络", wifiNotSaved = "⚠️ 未保存", cameraDenied = "相机未授权",
 )
 
 private val EN = Strings(
@@ -57,6 +64,8 @@ private val EN = Strings(
     readyThinking = "🟢 Ready · thinking…", thinking = "💭 Thinking…", errorPrefix = "Error: ",
     offlineHint = "tap: open WiFi · double-tap: exit",
     langSwitched = "🌐 Switched to English",
+    scanHint = "aim at the WiFi QR code", notWifiQr = "not a WiFi QR code",
+    wifiSaved = "✅ Network saved", wifiNotSaved = "⚠️ Not saved", cameraDenied = "Camera not authorized",
 )
 
 fun strings(lang: String): Strings = if (lang == "en") EN else ZH
