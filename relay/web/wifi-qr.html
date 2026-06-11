@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WiFi 二维码 / WiFi QR</title>
+<title>Rokid Claude 二维码</title>
 <style>
   body { font-family: sans-serif; max-width: 420px; margin: 24px auto; padding: 0 16px; }
   label { display: block; margin: 10px 0 2px; font-size: 14px; }
@@ -11,38 +11,74 @@
   button { margin-top: 14px; cursor: pointer; }
   #out { margin-top: 18px; text-align: center; }
   .hint { color: #666; font-size: 13px; line-height: 1.5; }
+  .hidden { display: none; }
 </style>
 </head>
 <body>
-<h2>WiFi 二维码 / WiFi QR</h2>
-<p class="hint">密码只在本页本地生成二维码,不发送到任何服务器。<br>
-Password is used only in this page to draw the QR — nothing is sent anywhere.</p>
-<label>网络名 SSID</label><input id="ssid" autocomplete="off">
-<label>密码 Password</label><input id="pass" autocomplete="off">
-<label>加密 Security</label>
-<select id="type">
-  <option value="WPA">WPA / WPA2 / WPA3</option>
-  <option value="nopass">无密码 Open</option>
+<h2>Rokid Claude 二维码</h2>
+<p class="hint">密码 / token 只在本页本地生成二维码,不发送到任何服务器。<br>
+Secrets are used only in this page — nothing is sent anywhere.</p>
+
+<label>二维码类型 / Type</label>
+<select id="qrtype">
+  <option value="wifi">WiFi 配网 / Wi-Fi</option>
+  <option value="config">配置(serverUrl + token)/ Config</option>
 </select>
+
+<div id="wifiForm">
+  <label>网络名 SSID</label><input id="ssid" autocomplete="off">
+  <label>密码 Password</label><input id="pass" autocomplete="off">
+  <label>加密 Security</label>
+  <select id="sec">
+    <option value="WPA">WPA / WPA2 / WPA3</option>
+    <option value="nopass">无密码 Open</option>
+  </select>
+</div>
+
+<div id="configForm" class="hidden">
+  <label>serverUrl(wss://… 或 ws://…)</label><input id="url" autocomplete="off">
+  <label>token(本地无鉴权可留空)</label><input id="token" autocomplete="off">
+  <label>语言 Language</label>
+  <select id="lang"><option value="zh">中文</option><option value="en">English</option></select>
+</div>
+
 <button id="gen">生成二维码 / Generate</button>
 <div id="out"></div>
+
 <script src="./vendor/qrcode-generator.js"></script>
 <script>
+  var typeSel = document.getElementById('qrtype');
+  function syncForms() {
+    var cfg = typeSel.value === 'config';
+    document.getElementById('wifiForm').classList.toggle('hidden', cfg);
+    document.getElementById('configForm').classList.toggle('hidden', !cfg);
+    document.getElementById('out').innerHTML = '';
+  }
+  typeSel.onchange = syncForms; syncForms();
+
   function esc(s) { return s.replace(/([\\;,:"])/g, '\\$1'); }
-  function wifiString(ssid, pass, type) {
-    if (type === 'nopass') return 'WIFI:S:' + esc(ssid) + ';T:nopass;;';
-    return 'WIFI:S:' + esc(ssid) + ';T:' + type + ';P:' + esc(pass) + ';;';
+  function wifiString(ssid, pass, sec) {
+    if (sec === 'nopass') return 'WIFI:S:' + esc(ssid) + ';T:nopass;;';
+    return 'WIFI:S:' + esc(ssid) + ';T:' + sec + ';P:' + esc(pass) + ';;';
+  }
+  function configString(url, token, lang) {
+    return 'RCLAUDE:url=' + url + ';token=' + token + ';lang=' + lang;
+  }
+  function render(payload) {
+    var qr = qrcode(0, 'M'); qr.addData(payload); qr.make();
+    document.getElementById('out').innerHTML = qr.createImgTag(6, 8);
   }
   document.getElementById('gen').onclick = function () {
-    var ssid = document.getElementById('ssid').value;
-    var pass = document.getElementById('pass').value;
-    var type = document.getElementById('type').value;
     var out = document.getElementById('out');
-    if (!ssid) { out.textContent = '请填写 SSID / enter SSID'; return; }
-    var qr = qrcode(0, 'M');
-    qr.addData(wifiString(ssid, pass, type));
-    qr.make();
-    out.innerHTML = qr.createImgTag(6, 8);
+    if (typeSel.value === 'config') {
+      var url = document.getElementById('url').value.trim();
+      if (!url) { out.textContent = '请填写 serverUrl / enter serverUrl'; return; }
+      render(configString(url, document.getElementById('token').value.trim(), document.getElementById('lang').value));
+    } else {
+      var ssid = document.getElementById('ssid').value;
+      if (!ssid) { out.textContent = '请填写 SSID / enter SSID'; return; }
+      render(wifiString(ssid, document.getElementById('pass').value, document.getElementById('sec').value));
+    }
   };
 </script>
 </body>

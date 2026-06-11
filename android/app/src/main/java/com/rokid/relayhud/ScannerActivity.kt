@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.wifi.WifiNetworkSuggestion
 import android.os.Bundle
 import android.provider.Settings
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,6 +42,7 @@ class ScannerActivity : ComponentActivity() {
     @Volatile private var handled = false              // 命中一次后停止处理后续帧
     private val analysisExec = Executors.newSingleThreadExecutor()
     private val reader = QRCodeReader()
+    private val pendingConfig = mutableStateOf<AppConfig?>(null)  // 待确认的配置码
 
     private val requestCamera =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -71,10 +73,19 @@ class ScannerActivity : ComponentActivity() {
         setContent {
             Box(Modifier.fillMaxSize()) {
                 AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
-                Text(
-                    status.value, color = Color(0xFF00FF88), fontSize = 14.sp,
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
-                )
+                val pc = pendingConfig.value
+                if (pc != null) {
+                    Text(
+                        "${s.connectTo}\n${pc.serverUrl}\n\n${s.confirmHint}",
+                        color = Color(0xFF00FF88), fontSize = 14.sp,
+                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                    )
+                } else {
+                    Text(
+                        status.value, color = Color(0xFF00FF88), fontSize = 14.sp,
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
+                    )
+                }
             }
         }
         val future = ProcessCameraProvider.getInstance(this)
@@ -90,6 +101,38 @@ class ScannerActivity : ComponentActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (pendingConfig.value != null) {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {     // 双击=取消,回扫描
+                pendingConfig.value = null; status.value = s.scanHint; handled = false; return true
+            }
+            if (Gestures.map(keyCode, KeyEvent.ACTION_UP) == GestureAction.TAP) {  // 单击=确认
+                applyConfig(pendingConfig.value!!); return true
+            }
+            return true   // 确认态吞掉其它键
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
+    /** 写 config.json 并重启 MainActivity 用新地址重连。写失败则提示、回扫描。 */
+    private fun applyConfig(cfg: AppConfig) {
+        try {
+            // 目录归本 app(可删文件),但 adb push 进来的旧 config.json 属主是 shell、本 app 无法直接覆盖(EACCES)。
+            // 先删旧文件再写:新文件归本 app,可写。全新安装(无文件)时 delete 是 no-op。
+            val f = java.io.File(getExternalFilesDir(null), "config.json")
+            f.delete()
+            f.writeText(configToJson(cfg))
+        } catch (_: Exception) {
+            status.value = s.wifiNotSaved; pendingConfig.value = null; handled = false; return
+        }
+        status.value = s.configApplied
+        startActivity(
+            Intent(this, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
+        )
+        finish()
+    }
+
     private fun decode(image: ImageProxy) {
         if (handled) { image.close(); return }
         try {
@@ -100,9 +143,14 @@ class ScannerActivity : ComponentActivity() {
                 bytes, plane.rowStride, image.height, 0, 0, image.width, image.height, false)
             val text = reader.decode(BinaryBitmap(HybridBinarizer(source))).text
             val wifi = parseWifiQr(text)
+            val cfg = if (wifi == null) parseConfigQr(text) else null
             runOnUiThread {
-                if (wifi == null) status.value = s.notWifiQr
-                else if (!handled) { handled = true; saveNetwork(wifi) }
+                when {
+                    handled -> {}
+                    wifi != null -> { handled = true; saveNetwork(wifi) }
+                    cfg != null -> { handled = true; pendingConfig.value = cfg; status.value = "" }
+                    else -> status.value = s.unknownQr
+                }
             }
         } catch (_: NotFoundException) {
             // 这一帧没扫到码,继续下一帧

@@ -117,10 +117,23 @@ and confirm the system "save network?" dialog. The network is saved and
 auto-reconnects in range. (**Swipe** opens the system Wi-Fi panel instead, for
 already-saved or open networks; **double-tap** exits.)
 
-The relay serves a local generator at `/wifi-qr.html` — enter an SSID and
-password to render a Wi-Fi QR entirely in-page (the password never leaves the
-browser). Useful for iPhone Personal Hotspot, which has no built-in Wi-Fi QR.
-Android phone hotspots and many routers can show one natively.
+The same scanner also reads a **config QR** of the form
+`RCLAUDE:url=wss://<host>;token=<token>;lang=zh`, which writes `config.json`
+(serverUrl / token / lang) in-app — no `adb push` needed. On a hit it shows a
+confirm screen with the **serverUrl only** (never the token); single-tap writes
+the config and restarts the app to reconnect, double-tap cancels. Together with
+the Wi-Fi QR, this lets a non-technical user go from a fresh install to running
+without a cable — only installing the APK still needs sideloading.
+
+The relay serves a local generator at `/wifi-qr.html` with a **type switch
+(Wi-Fi / Config)**. Wi-Fi mode takes an SSID + password; Config mode takes a
+serverUrl + token + language. Both render the QR entirely in-page — the password
+or token never leaves the browser. The Wi-Fi QR is also useful for iPhone
+Personal Hotspot (no built-in QR); Android hotspots and many routers show one
+natively.
+
+> ⚠️ A config QR embeds the token (equivalent to remote code execution on your
+> Mac). Treat that QR image like a password — don't share or post it.
 
 Say **"网络" / "wifi"** any time (when connected) to open the system Wi-Fi panel.
 

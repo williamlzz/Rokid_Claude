@@ -54,9 +54,16 @@ class StringsTest {
     @Test fun scannerStrings() {
         assertEquals("对准 WiFi 二维码", strings("zh").scanHint)
         assertEquals("aim at the WiFi QR code", strings("en").scanHint)
-        assertEquals("不是 WiFi 二维码", strings("zh").notWifiQr)
         assertEquals("✅ 已保存网络", strings("zh").wifiSaved)
         assertEquals("⚠️ 未保存", strings("zh").wifiNotSaved)
         assertEquals("Camera not authorized", strings("en").cameraDenied)
+    }
+    @Test fun configStrings() {
+        assertEquals("连接到", strings("zh").connectTo)
+        assertEquals("Connect to", strings("en").connectTo)
+        assertEquals("单击确认 · 双击取消", strings("zh").confirmHint)
+        assertEquals("✅ 已配置,正在重连", strings("zh").configApplied)
+        assertEquals("无法识别的二维码", strings("zh").unknownQr)
+        assertEquals("unrecognized QR code", strings("en").unknownQr)
     }
 }

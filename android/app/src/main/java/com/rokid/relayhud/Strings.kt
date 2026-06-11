@@ -32,10 +32,13 @@ data class Strings(
     val offlineHint: String,
     val langSwitched: String,
     val scanHint: String,
-    val notWifiQr: String,
     val wifiSaved: String,
     val wifiNotSaved: String,
     val cameraDenied: String,
+    val connectTo: String,
+    val confirmHint: String,
+    val configApplied: String,
+    val unknownQr: String,
 )
 
 private val ZH = Strings(
@@ -49,8 +52,10 @@ private val ZH = Strings(
     readyThinking = "🟢 已就绪 · 思考中…", thinking = "💭 思考中…", errorPrefix = "错误: ",
     offlineHint = "单击:打开WiFi · 双击:退出",
     langSwitched = "🌐 已切换为中文",
-    scanHint = "对准 WiFi 二维码", notWifiQr = "不是 WiFi 二维码",
+    scanHint = "对准 WiFi 二维码",
     wifiSaved = "✅ 已保存网络", wifiNotSaved = "⚠️ 未保存", cameraDenied = "相机未授权",
+    connectTo = "连接到", confirmHint = "单击确认 · 双击取消",
+    configApplied = "✅ 已配置,正在重连", unknownQr = "无法识别的二维码",
 )
 
 private val EN = Strings(
@@ -64,8 +69,10 @@ private val EN = Strings(
     readyThinking = "🟢 Ready · thinking…", thinking = "💭 Thinking…", errorPrefix = "Error: ",
     offlineHint = "tap: open WiFi · double-tap: exit",
     langSwitched = "🌐 Switched to English",
-    scanHint = "aim at the WiFi QR code", notWifiQr = "not a WiFi QR code",
+    scanHint = "aim at the WiFi QR code",
     wifiSaved = "✅ Network saved", wifiNotSaved = "⚠️ Not saved", cameraDenied = "Camera not authorized",
+    connectTo = "Connect to", confirmHint = "tap to confirm · double-tap to cancel",
+    configApplied = "✅ Configured, reconnecting", unknownQr = "unrecognized QR code",
 )
 
 fun strings(lang: String): Strings = if (lang == "en") EN else ZH
