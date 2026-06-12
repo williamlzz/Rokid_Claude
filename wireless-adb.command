@@ -42,9 +42,9 @@ sleep 1
 if "$ADB" -s "$IP:$PORT" shell true >/dev/null 2>&1; then
   echo "✓ 无线 adb 已就绪:$IP:$PORT"
   echo ""
-  echo "现在可以【拔掉开发线】。以后免线操作:"
+  echo "现在可以【拔掉开发线】。以后免线操作(在项目根目录跑):"
   echo "    adb connect $IP:$PORT     # 重连(若断开)"
-  echo "    adb install -r app-debug.apk"
+  echo "    adb install -r android/app/build/outputs/apk/debug/app-debug.apk"
   echo "    adb push config.json /sdcard/Android/data/com.rokid.relayhud/files/config.json"
   echo ""
   echo "⚠️ 眼镜重启后 tcpip 模式会丢——重插线再跑本脚本即可。"

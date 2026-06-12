@@ -10,7 +10,7 @@ if [ -z "$ADB" ] || [ ! -x "$ADB" ]; then
 fi
 
 echo "──────────────────────────────"
-echo "  Rokid Claude 启动中…"
+echo "  Rokid Claude · 本地启动(USB)"
 echo "──────────────────────────────"
 
 # 1) 检查眼镜是否连上

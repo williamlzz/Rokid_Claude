@@ -20,7 +20,7 @@ if ! command -v ngrok >/dev/null 2>&1; then
 fi
 
 echo "──────────────────────────────"
-echo "  Rokid Claude 远程启动中…"
+echo "  Rokid Claude · 远程启动(ngrok)"
 echo "  眼镜 config.json 里 serverUrl 应填: wss://$NGROK_DOMAIN"
 echo "──────────────────────────────"
 
