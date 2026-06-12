@@ -2,8 +2,9 @@
 
 > Voice-control Claude Code on your home Mac from Rokid Glasses — watch it work, live, on a monochrome-green HUD.
 
-<!-- TODO(media): demo.gif here -->
-*Demo GIF coming soon.* · [中文 README](README_zh.md)
+<video src="https://github.com/williamlzz/Rokid_Claude/raw/main/docs/media/hero.mp4" controls width="320"></video>
+
+*Speak a task; watch Claude Code do it on the green HUD — permission confirmed by a gesture.* · [中文 README](README_zh.md)
 
 ## What it is
 
@@ -17,7 +18,13 @@ anywhere.
 
 ## Demo
 
-<!-- TODO(media): screenshots of the HUD (idle / streaming / model picker / statusline) and a photo wearing the glasses -->
+**Voice model switch** — say "switch model", then swipe to pick (opus / sonnet / fable):
+
+<video src="https://github.com/williamlzz/Rokid_Claude/raw/main/docs/media/switchmodel.mp4" controls width="320"></video>
+
+**Runtime language switch** — say "switch language"; the whole HUD flips between Chinese and English:
+
+<video src="https://github.com/williamlzz/Rokid_Claude/raw/main/docs/media/switchlanguage.mp4" controls width="320"></video>
 
 ## Architecture
 
