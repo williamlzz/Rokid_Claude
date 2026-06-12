@@ -2,9 +2,9 @@
 
 > Voice-control Claude Code on your home Mac from Rokid Glasses — watch it work, live, on a monochrome-green HUD.
 
-<a href="docs/media/hero.mp4"><img src="docs/media/hero-poster.png" width="300" alt="Watch the demo"></a>
+https://github.com/user-attachments/assets/6979aefc-f279-44ab-854c-ffca81c5dac6
 
-*▶ Speak a task; watch Claude Code do it on the green HUD — permission confirmed by a gesture. (click to play)* · [中文 README](README_zh.md)
+*Speak a task; watch Claude Code do it on the green HUD — permission confirmed by a gesture.* · [中文 README](README_zh.md)
 
 ## What it is
 
@@ -20,11 +20,11 @@ anywhere.
 
 **Voice model switch** — say "switch model", then swipe to pick (opus / sonnet / fable):
 
-<a href="docs/media/switchmodel.mp4"><img src="docs/media/switchmodel-poster.png" width="300" alt="Voice model switch — click to play"></a>
+https://github.com/user-attachments/assets/d71357c8-0366-484c-aaa1-5de33ca66485
 
 **Runtime language switch** — say "switch language"; the whole HUD flips between Chinese and English:
 
-<a href="docs/media/switchlanguage.mp4"><img src="docs/media/switchlanguage-poster.png" width="300" alt="Runtime language switch — click to play"></a>
+https://github.com/user-attachments/assets/2a4a304b-4600-4c17-8bcb-167e576b47e8
 
 ## Architecture
 
