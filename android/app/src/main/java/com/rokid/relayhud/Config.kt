@@ -1,6 +1,7 @@
 package com.rokid.relayhud
 
 import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -29,6 +30,15 @@ fun parseConfig(json: String?): AppConfig {
 /** 把 token 作为查询串拼到 ws(s) 地址上;token 为空则原样返回。 */
 fun buildWsUrl(host: String, token: String): String {
     if (token.isEmpty()) return host
-    val enc = URLEncoder.encode(token, "UTF-8")
-    return "$host/?token=$enc"
+    val enc = URLEncoder.encode(token, StandardCharsets.UTF_8.name())
+    val fragment = host.substringAfter('#', missingDelimiterValue = "")
+    val rawBase = host.substringBefore('#')
+    val base = if (!rawBase.contains("?") && !rawBase.substringAfter("://", "").contains("/")) "$rawBase/" else rawBase
+    val sep = when {
+        base.endsWith("?") || base.endsWith("&") -> ""
+        base.contains("?") -> "&"
+        else -> "?"
+    }
+    val suffix = if (fragment.isEmpty()) "" else "#$fragment"
+    return "$base${sep}token=$enc$suffix"
 }

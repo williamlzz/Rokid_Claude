@@ -86,7 +86,8 @@ describe('broadcast fan-out', () => {
     expect(reqA.id).toBe(reqB.id);   // 同一请求扇出给两端
 
     // 任一客户端回裁决即兑现
-    wsA.send(JSON.stringify({ type: 'permissionDecision', id: reqA.id, choice: '允许一次', allowKey: 'Bash' }));
+    expect(reqA.allowKey).toBe('Bash::ls');
+    wsA.send(JSON.stringify({ type: 'permissionDecision', id: reqA.id, choice: '允许一次', allowKey: reqA.allowKey }));
     const body = await (await resP).json();
     expect(body.allow).toBe(true);
 

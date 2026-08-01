@@ -5,6 +5,15 @@ export function allowKey(tool: string, command: string): string {
   return `${tool}::${command}`;
 }
 
+/**
+ * 记忆键策略(混合):
+ * - Bash 按"工具+命令"收窄,放行一次某条命令不会让其它任意命令(如 rm -rf)免确认;
+ * - 写文件类(Write/Edit/MultiEdit/NotebookEdit)按"工具"放行,"这类都允许"可覆盖整批文件,保留批量体验。
+ */
+export function memoryKey(tool: string, command: string): string {
+  return tool === 'Bash' ? allowKey(tool, command) : tool;
+}
+
 /** 命中已允许集合=allow,否则=ask(需要问用户)。 */
 export function decide(key: string, allowedSet: Set<string>): 'allow' | 'ask' {
   return allowedSet.has(key) ? 'allow' : 'ask';

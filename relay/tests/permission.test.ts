@@ -1,10 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { allowKey, decide, summarize } from '../src/permission';
+import { allowKey, decide, memoryKey, summarize } from '../src/permission';
 
 describe('permission 纯逻辑', () => {
   it('allowKey 由工具名+命令稳定生成', () => {
     expect(allowKey('Bash', 'npm test')).toBe('Bash::npm test');
     expect(allowKey('Write', '/a/b.txt')).toBe('Write::/a/b.txt');
+  });
+  it('memoryKey:Bash 按命令收窄,写文件类按工具放行', () => {
+    expect(memoryKey('Bash', 'rm -rf /')).toBe('Bash::rm -rf /');
+    expect(memoryKey('Write', '/a/b.txt')).toBe('Write');
+    expect(memoryKey('Edit', '/a/b.txt')).toBe('Edit');
   });
   it('decide:在已允许集合内→allow', () => {
     const set = new Set<string>(['Bash::npm test']);

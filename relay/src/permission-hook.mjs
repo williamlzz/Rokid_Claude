@@ -6,8 +6,9 @@ let allow = false;
 try {
   const { tool_name, tool_input } = JSON.parse(raw || '{}');
   const bridge = process.env.ROKID_PERM_BRIDGE ?? 'http://127.0.0.1:8787/permission';
+  const token = process.env.ROKID_PERM_TOKEN ?? '';
   const r = await fetch(bridge, {
-    method: 'POST', headers: { 'content-type': 'application/json' },
+    method: 'POST', headers: { 'content-type': 'application/json', 'x-rokid-permission-token': token },
     body: JSON.stringify({ tool: tool_name, input: tool_input ?? {} }),
   });
   allow = (await r.json()).allow === true;

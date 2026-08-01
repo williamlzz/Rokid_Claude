@@ -7,7 +7,7 @@ import { runClaude, type RunHandle } from './claude-runner';
 import { RunStore } from './run-store';
 import { transcribe } from './transcribe';
 import { checkToken } from './auth';
-import { decide, summarize } from './permission';
+import { memoryKey, decide, summarize } from './permission';
 import { expandPrompt, loadDictionary } from './dictionary';
 import { parseModelCommand, modelArg, type ModelAlias } from './model';
 import { tr, normalizeLang, type Lang } from './i18n';
@@ -21,6 +21,7 @@ export interface ServerOptions {
   stateDir: string;
   modelPath: string;
   token?: string;
+  permissionToken?: string;
   dictionaryDir?: string;
   runner?: RunnerFn;
   transcriber?: TranscriberFn;
@@ -36,6 +37,7 @@ export function createRelayServer(opts: ServerOptions) {
   const runner = opts.runner ?? runClaude;
   const transcriber = opts.transcriber ?? transcribe;
   const store = new RunStore(opts.stateDir);
+  const expectedPermissionToken = opts.permissionToken ?? opts.token;
   let current: RunHandle | null = null;
   let currentRunId: string | null = null;
 
@@ -91,15 +93,21 @@ export function createRelayServer(opts: ServerOptions) {
 
   const http = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     if (req.method === 'POST' && req.url === '/permission') {
+      if (expectedPermissionToken && req.headers['x-rokid-permission-token'] !== expectedPermissionToken) {
+        res.writeHead(403, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ allow: false }));
+        return;
+      }
       let body = '';
       req.on('data', (c) => (body += c));
       req.on('end', async () => {
         try {
           const { tool, input } = JSON.parse(body || '{}');
           const { summary, command } = summarize(tool, input ?? {}, lang);
-          // 记忆按"工具类型"(本会话):"这类都允许"后,同类工具(如所有 Write)免确认,利于批量。
-          if (decide(tool, allowedSet) === 'allow') { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ allow: true })); return; }
-          const choice = await requestDecision({ tool, summary, command, allowKey: tool });
+          // 记忆键策略:Bash 按命令收窄(避免一次放行后任意命令免确认),写文件类按工具放行(利于批量)。
+          const key = memoryKey(tool, command);
+          if (decide(key, allowedSet) === 'allow') { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ allow: true })); return; }
+          const choice = await requestDecision({ tool, summary, command, allowKey: key });
           const t = tr(lang);
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ allow: choice === t.permOnce || choice === t.permKind }));

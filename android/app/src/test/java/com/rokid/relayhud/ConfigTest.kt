@@ -39,4 +39,18 @@ class ConfigTest {
             buildWsUrl("wss://abc.ngrok-free.dev", "a+b"),
         )
     }
+
+    @Test fun buildWsUrl_withExistingQuery_appendsToken() {
+        assertEquals(
+            "wss://abc.ngrok-free.dev/ws?ngrok=true&token=a%2Bb",
+            buildWsUrl("wss://abc.ngrok-free.dev/ws?ngrok=true", "a+b"),
+        )
+    }
+
+    @Test fun buildWsUrl_keepsFragmentLast() {
+        assertEquals(
+            "wss://abc.ngrok-free.dev/ws?token=a%2Bb#frag",
+            buildWsUrl("wss://abc.ngrok-free.dev/ws#frag", "a+b"),
+        )
+    }
 }

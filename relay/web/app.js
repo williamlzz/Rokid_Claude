@@ -10,7 +10,10 @@ let ws;
 function savePos() { localStorage.setItem(LS, JSON.stringify(pos)); }
 
 function connect() {
-  ws = new WebSocket(`ws://${location.host}`);
+  const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const token = new URLSearchParams(location.search).get('token');
+  const qs = token ? `?token=${encodeURIComponent(token)}` : '';
+  ws = new WebSocket(`${wsProto}//${location.host}/${qs}`);
   ws.onopen = () => {
     conn.textContent = '已连接';
     ws.send(JSON.stringify({ type: 'hello', lastRunId: pos.lastRunId, lastSeq: pos.lastSeq }));

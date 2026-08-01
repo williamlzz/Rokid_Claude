@@ -135,6 +135,62 @@ describe('token 鉴权', () => {
     });
     expect(sync.type).toBe('sync');
   });
+
+  it('/permission 缺少桥接密钥时拒绝', async () => {
+    const srv = createRelayServer({
+      sandboxDir: '/tmp/x', webDir: '/tmp/x', stateDir: dir, modelPath: '/tmp/m.bin',
+      runner: fakeRunner([]), permissionToken: 'bridge-secret',
+    });
+    await new Promise<void>((r) => srv.http.listen(0, r));
+    close = () => srv.http.close();
+    const port = (srv.http.address() as AddressInfo).port;
+
+    const res = await fetch(`http://127.0.0.1:${port}/permission`, {
+      method: 'POST',
+      body: JSON.stringify({ tool: 'Bash', input: { command: 'ls' } }),
+    });
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ allow: false });
+  });
+
+  it('/permission 带桥接密钥时使用工具+命令记忆键', async () => {
+    const srv = createRelayServer({
+      sandboxDir: '/tmp/x', webDir: '/tmp/x', stateDir: dir, modelPath: '/tmp/m.bin',
+      runner: fakeRunner([]), permissionToken: 'bridge-secret',
+    });
+    srv.allowedSet.add('Bash::ls');
+    await new Promise<void>((r) => srv.http.listen(0, r));
+    close = () => srv.http.close();
+    const port = (srv.http.address() as AddressInfo).port;
+
+    const res = await fetch(`http://127.0.0.1:${port}/permission`, {
+      method: 'POST',
+      headers: { 'x-rokid-permission-token': 'bridge-secret' },
+      body: JSON.stringify({ tool: 'Bash', input: { command: 'ls' } }),
+    });
+    expect(await res.json()).toEqual({ allow: true });
+  });
+
+  it('写文件类"这类都允许"后整批文件免确认(混合策略)', async () => {
+    const srv = createRelayServer({
+      sandboxDir: '/tmp/x', webDir: '/tmp/x', stateDir: dir, modelPath: '/tmp/m.bin',
+      runner: fakeRunner([]), permissionToken: 'bridge-secret',
+    });
+    srv.allowedSet.add('Write'); // 按工具放行(如"这类都允许 Write")
+    await new Promise<void>((r) => srv.http.listen(0, r));
+    close = () => srv.http.close();
+    const port = (srv.http.address() as AddressInfo).port;
+
+    // 不同文件路径都应免确认(若按 Write::path 收窄,这条会卡在等裁决)
+    for (const file_path of ['/tmp/a.txt', '/tmp/b.txt']) {
+      const res = await fetch(`http://127.0.0.1:${port}/permission`, {
+        method: 'POST',
+        headers: { 'x-rokid-permission-token': 'bridge-secret' },
+        body: JSON.stringify({ tool: 'Write', input: { file_path } }),
+      });
+      expect(await res.json()).toEqual({ allow: true });
+    }
+  });
 });
 
 describe('权限桥', () => {

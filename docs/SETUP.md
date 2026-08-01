@@ -166,13 +166,12 @@ output. You can also type prompts from the page.
 **Local mode:** run `./start.command`, then open **http://localhost:8787** in a
 Mac browser — you'll see (and can drive) the same session as the glasses.
 
-Two limitations to know:
+**Remote mode:** open `https://<your-ngrok-domain>/?token=<ROKID_TOKEN>`. The
+page passes that token to its WebSocket connection and uses `wss://` on HTTPS.
 
-1. **Local (no-token) relay only.** The bundled page connects without a token,
-   so a token-protected remote relay (`start-remote.command`) rejects it (1008).
-   Viewing a remote session on the Mac would need adding token support to the
-   web client — not done yet.
-2. **Read-only ride-along.** Output, usage, and permission/model prompts are
+One limitation to know:
+
+1. **Read-only ride-along.** Output, usage, and permission/model prompts are
    broadcast to **all** connected clients, so both the glasses and the Mac page
    see them. The Mac page only displays permission/model prompts — you still
    confirm them **on the glasses** (the page has no verdict buttons). Either side
