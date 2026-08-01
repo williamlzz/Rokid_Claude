@@ -22,8 +22,9 @@ if ! "$ADB" get-state >/dev/null 2>&1; then
 fi
 echo "✓ 眼镜已连接"
 
-# 2) 端口转发(眼镜的 8787 → Mac 的 8787)
-"$ADB" reverse tcp:8787 tcp:8787 && echo "✓ 端口转发已设 (8787)"
+# 2) 端口转发(眼镜的 PORT → Mac 的 PORT)。默认 8787,如本机端口被占用可设 ROKID_PORT。
+PORT="${ROKID_PORT:-8787}"
+"$ADB" reverse "tcp:$PORT" "tcp:$PORT" && echo "✓ 端口转发已设 ($PORT)"
 
 # 3) 调试期屏常亮(不戴也不熄,方便看)
 "$ADB" shell svc power stayon usb >/dev/null 2>&1 && echo "✓ 屏常亮(USB 连接时)"
@@ -34,4 +35,9 @@ echo "  用完:在本窗口按 Ctrl+C 即可停止;然后可拔眼镜。"
 echo ""
 
 # 4) 起中继(前台运行,保持本窗口开着)
-cd relay && npm run dev
+CLAUDE_BIN="${CLAUDE_BINARY:-$(command -v claude || true)}"
+if [ -z "$CLAUDE_BIN" ] || [ ! -x "$CLAUDE_BIN" ]; then
+  echo "✗ 找不到 claude CLI。请先安装并登录 Claude Code，或设置 CLAUDE_BINARY=/path/to/claude。"
+  read -n 1 -s -r -p "按任意键关闭…"; exit 1
+fi
+CLAUDE_BINARY="$CLAUDE_BIN" ROKID_PORT="$PORT" npm run dev
