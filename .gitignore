@@ -13,6 +13,11 @@ android/.idea/
 # Phase 3 远程:本地密钥与配置,绝不进库
 relay/.remote.env
 config.local.json
+config.json
+config.remote.generated.json
+config.remote.qr.txt
+config.remote.qr.png
+config.tailscale.json
 
 # Release APK 产物(走 GitHub Release,不入库)
 dist-apk/

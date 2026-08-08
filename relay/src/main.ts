@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { randomBytes } from 'node:crypto';
 import { createRelayServer } from './server';
@@ -9,8 +9,9 @@ import { runClaude } from './claude-runner';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 
-const PORT = 8787;
+const PORT = Number(process.env.ROKID_PORT ?? 8787);
 const token = process.env.ROKID_TOKEN;
+const claudeBinary = process.env.CLAUDE_BINARY;
 const permissionToken = randomBytes(32).toString('hex');
 const shellQuote = (value: string) => `'${value.replace(/'/g, `'\\''`)}'`;
 
@@ -28,19 +29,24 @@ writeFileSync(settingsPath, JSON.stringify({
   },
 }));
 
+const sandboxDir = join(root, 'sandbox');
+const stateDir = join(root, 'state');
+mkdirSync(sandboxDir, { recursive: true });
+mkdirSync(stateDir, { recursive: true });
+
 const { http } = createRelayServer({
-  sandboxDir: join(root, 'sandbox'),
+  sandboxDir,
   webDir: join(root, 'web'),
-  stateDir: join(root, 'state'),
+  stateDir,
   modelPath: join(root, 'models', 'ggml-small.bin'),
   token,
   permissionToken,
   dictionaryDir: root,
-  runner: (o) => runClaude({ ...o, settingsPath }),
+  runner: (o) => runClaude({ ...o, binary: claudeBinary, settingsPath }),
 });
 
 http.listen(PORT, () => {
   console.log(`Rokid relay 已启动: http://localhost:${PORT}`);
   console.log(`鉴权: ${token ? '已开启 (ROKID_TOKEN)' : '未开启 (本地直连)'}`);
-  console.log(`sandbox: ${join(root, 'sandbox')} | state: ${join(root, 'state')}`);
+  console.log(`sandbox: ${sandboxDir} | state: ${stateDir}`);
 });

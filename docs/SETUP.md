@@ -68,24 +68,24 @@ ngrok tunnel.
    ngrok config add-authtoken <your-ngrok-authtoken>
    ```
    A free static domain works well.
-2. **Create the relay environment file:**
-   ```bash
-   cp relay/.remote.env.example relay/.remote.env
-   ```
-   Fill in:
-   - `ROKID_TOKEN` — a long random secret, e.g. `openssl rand -hex 24`.
-   - `NGROK_DOMAIN` — your fixed ngrok domain (without the protocol), e.g.
-     `your-subdomain.ngrok-free.dev`.
-3. **Point the client at the tunnel.** In `config.json` set
-   `"serverUrl": "wss://<your-ngrok-domain>"` and `"token": "<same ROKID_TOKEN>"`,
-   then push it (same `adb push` command as above).
-4. **Start the remote stack:**
+2. **Start the remote stack:**
    ```bash
    ./start-remote.command
    ```
-   This launches ngrok plus the token-protected relay. When you're out of the
-   house, connect the glasses to your phone's hotspot and they reach the Mac
-   through the tunnel.
+   On first run the script creates `relay/.remote.env` with a random
+   `ROKID_TOKEN`. If you have a fixed ngrok domain, put it in `NGROK_DOMAIN`;
+   otherwise the script uses ngrok's temporary public URL.
+3. **Point the client at the tunnel.** The script writes
+   `config.remote.generated.json` plus `config.remote.qr.txt` (and
+   `config.remote.qr.png` when `qrencode` is installed). Use either:
+   ```bash
+   adb push config.remote.generated.json /sdcard/Android/data/com.rokid.relayhud/files/config.json
+   ```
+   or scan the `RCLAUDE:` config QR from the glasses while disconnected.
+
+This launches ngrok plus the token-protected relay. When you're out of the
+house, connect the glasses to your phone's hotspot and they reach the Mac
+through the tunnel.
 
 ### Security
 
